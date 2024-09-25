@@ -13,7 +13,7 @@
             font-family: 'Quicksand', sans-serif;
             margin: 0;
             padding: 0;
-            background: url('baby.jpg') no-repeat center center fixed;
+            background: url('baby-placeholder.jpg') no-repeat center center fixed;
             background-size: cover;
             color: #333;
             overflow-x: hidden;
@@ -230,22 +230,25 @@
             document.querySelector('#volume + output').value = 1;
         }
 
-        // Background music control
-        let musicPlaying = false;
-        let music = new Audio('background-music.mp3'); // Replace with your audio file name or URL
-        music.loop = true;
+// Background music control
+let musicPlaying = false;
+let music;
 
-        function toggleMusic() {
-            if (!musicPlaying) {
-                music.play();
-                musicPlaying = true;
-                document.getElementById('musicButton').innerText = '⏸️';
-            } else {
-                music.pause();
-                musicPlaying = false;
-                document.getElementById('musicButton').innerText = '▶️';
-            }
-        }
+function toggleMusic() {
+    if (!musicPlaying) {
+        music = new Audio('https://www.bensound.com/bensound-music/bensound-creativeminds.mp3'); // Replace with your audio file URL
+        music.loop = true;
+        music.play();
+        musicPlaying = true;
+        document.getElementById('musicButton').innerText = '⏸️';
+    } else {
+        music.pause();
+        musicPlaying = false;
+        document.getElementById('musicButton').innerText = '▶️';
+    }
+}
+
+
     </script>
 </head>
 <body>
