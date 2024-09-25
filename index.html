@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Existing head content -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compare "Hili" and "Hily"</title>
+    <!-- Added link to Google Fonts and updated styles -->
+    <link href="https://fonts.googleapis.com/css?family=Quicksand&display=swap" rel="stylesheet">
+    <style>
+        /* Updated Styles */
+        body {
+            font-family: 'Quicksand', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: url('baby.jpg') no-repeat center center fixed;
+            background-size: cover;
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        /* Overlay to dim the background image */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.8);
+            pointer-events: none;
+        }
+
+        /* Header Styling */
+        header {
+            background-color: rgba(108, 99, 255, 0.9);
+            color: white;
+            padding: 20px 0;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+        h1 {
+            margin: 0;
+            font-size: 36px;
+        }
+
+        /* Container Styling */
+        .container {
+            width: 90%;
+            max-width: 800px;
+            margin: 30px auto;
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Form Elements Styling */
+        select, button, input, textarea {
+            font-size: 16px;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 30px;
+            border: none;
+            width: 100%;
+            box-sizing: border-box;
+            background-color: #f1f1f1;
+            transition: background-color 0.3s;
+        }
+        select:focus, input:focus, textarea:focus {
+            background-color: #e0e0e0;
+            outline: none;
+        }
+        label {
+            font-weight: bold;
+            margin-top: 10px;
+            display: block;
+        }
+        .controls {
+            margin-bottom: 15px;
+        }
+
+        /* Buttons Styling */
+        .buttons {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+        }
+        button {
+            width: 45%;
+            background-color: #6C63FF;
+            color: white;
+            border: none;
+            cursor: pointer;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 30px;
+            font-size: 16px;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+        button:hover {
+            background-color: #574b90;
+            transform: translateY(-3px);
+        }
+
+        /* Restore Defaults Button */
+        .restore-button {
+            background-color: #ff9900;
+        }
+        .restore-button:hover {
+            background-color: #cc7a00;
+        }
+
+        /* Footer Styling */
+        footer {
+            text-align: center;
+            padding: 15px;
+            background-color: rgba(108, 99, 255, 0.9);
+            color: white;
+            position: relative;
+            bottom: 0;
+            width: 100%;
+            z-index: 1;
+        }
+
+        /* Music Controls */
+        .music-controls {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .music-controls button {
+            width: auto;
+            margin: 5px;
+            background-color: #6C63FF;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            padding: 0;
+            font-size: 24px;
+            line-height: 50px;
+        }
+        .music-controls button:hover {
+            background-color: #574b90;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 28px;
+            }
+            .buttons button {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+        }
+    </style>
+    <script>
+        let voices = [];
+
+        function populateVoiceList() {
+            const synth = window.speechSynthesis;
+            voices = synth.getVoices().sort((a, b) => a.name.localeCompare(b.name));
+
+            if (!voices.length) {
+                // Voices not yet loaded, try again shortly.
+                setTimeout(populateVoiceList, 100);
+                return;
+            }
+
+            const voiceSelect = document.getElementById('voiceSelect');
+            voiceSelect.innerHTML = ''; // Clear previous options
+
+            // Filter voices to include only 'en' and 'uk', excluding Russian and Google US English voices
+            const preferredLanguages = ['en', 'uk'];
+            const filteredVoices = voices.filter(voice => {
+                return preferredLanguages.some(lang => voice.lang.startsWith(lang)) &&
+                       !(voice.lang === 'en-US' && voice.name.includes('Google'));
+            });
+
+            filteredVoices.forEach((voice) => {
+                const option = document.createElement('option');
+                option.textContent = `${voice.name} (${voice.lang})${voice.default ? ' — DEFAULT' : ''}`;
+                option.value = voices.indexOf(voice); // Use the original index
+                voiceSelect.appendChild(option);
+            });
+        }
+
+        // Call populateVoiceList() immediately
+        populateVoiceList();
+
+        // Also add an event listener for voiceschanged event
+        if (typeof speechSynthesis !== 'undefined' && speechSynthesis.onvoiceschanged !== undefined) {
+            speechSynthesis.onvoiceschanged = populateVoiceList;
+        }
+
+        function synthesize(text) {
+            const synth = window.speechSynthesis;
+            if (synth.speaking) {
+                synth.cancel();
+            }
+            const utterThis = new SpeechSynthesisUtterance(text);
+
+            // Get selected voice and options
+            const selectedVoiceIndex = document.getElementById('voiceSelect').value;
+            utterThis.voice = voices[selectedVoiceIndex];
+            utterThis.rate = parseFloat(document.getElementById('rate').value);
+            utterThis.pitch = parseFloat(document.getElementById('pitch').value);
+            utterThis.volume = parseFloat(document.getElementById('volume').value);
+
+            synth.speak(utterThis);
+        }
+
+        function stopSpeech() {
+            const synth = window.speechSynthesis;
+            if (synth.speaking) {
+                synth.cancel();
+            }
+        }
+
+        // Restore default settings
+        function restoreDefaults() {
+            document.getElementById('rate').value = 1;
+            document.getElementById('pitch').value = 1;
+            document.getElementById('volume').value = 1;
+            document.querySelector('#rate + output').value = 1;
+            document.querySelector('#pitch + output').value = 1;
+            document.querySelector('#volume + output').value = 1;
+        }
+
+        // Background music control
+        let musicPlaying = false;
+        let music = new Audio('background-music.mp3'); // Replace with your audio file name or URL
+        music.loop = true;
+
+        function toggleMusic() {
+            if (!musicPlaying) {
+                music.play();
+                musicPlaying = true;
+                document.getElementById('musicButton').innerText = '⏸️';
+            } else {
+                music.pause();
+                musicPlaying = false;
+                document.getElementById('musicButton').innerText = '▶️';
+            }
+        }
+    </script>
+</head>
+<body>
+    <header>
+        <h1>Compare "Hili" and "Hily"</h1>
+    </header>
+
+    <div class="container">
+        <p style="text-align: center; font-size: 18px; margin-bottom: 20px;">
+            חברים פשוט תבחרו ותבדקו מה נשמע לכם טוב יותר
+        </p>
+
+        <!-- Voice Selection -->
+        <div class="controls">
+            <label for="voiceSelect">Choose a voice:</label>
+            <select id="voiceSelect"></select>
+        </div>
+
+        <!-- Speech Rate -->
+        <div class="controls">
+            <label for="rate">Rate (0.5 - 2):</label>
+            <input type="range" id="rate" value="1" step="0.1" min="0.5" max="2" oninput="this.nextElementSibling.value = this.value">
+            <output>1</output>
+        </div>
+
+        <!-- Speech Pitch -->
+        <div class="controls">
+            <label for="pitch">Pitch (0 - 2):</label>
+            <input type="range" id="pitch" value="1" step="0.1" min="0" max="2" oninput="this.nextElementSibling.value = this.value">
+            <output>1</output>
+        </div>
+
+        <!-- Speech Volume -->
+        <div class="controls">
+            <label for="volume">Volume (0 - 1):</label>
+            <input type="range" id="volume" value="1" step="0.1" min="0" max="1" oninput="this.nextElementSibling.value = this.value">
+            <output>1</output>
+        </div>
+
+        <!-- Restore Defaults Button -->
+        <div class="controls" style="text-align: center; margin-top: 10px;">
+            <button class="restore-button" onclick="restoreDefaults()">Restore Defaults</button>
+        </div>
+
+        <!-- Sentence Selection for "Hili" -->
+        <div class="controls">
+            <label for="sentenceHili">Choose a sentence for "Hili":</label>
+            <select id="sentenceHili" class="sentence-select">
+                <option>When you say Hili, it feels soft and melodic.</option>
+                <option>Hili enjoys reading books by the lake.</option>
+                <option>Everyone smiles when Hili walks into the room.</option>
+                <option>Hili's laughter is the sweetest sound.</option>
+                <option>The name Hili brings peace and serenity.</option>
+            </select>
+        </div>
+
+        <!-- Sentence Selection for "Hily" -->
+        <div class="controls">
+            <label for="sentenceHily">Choose a sentence for "Hily":</label>
+            <select id="sentenceHily" class="sentence-select">
+                <option>When you say Hily, it sounds cheerful and bright.</option>
+                <option>Hily loves to dance in the rain.</option>
+                <option>Friends adore spending time with Hily.</option>
+                <option>Hily's energy lights up every place she goes.</option>
+                <option>The name Hily is full of joy and excitement.</option>
+            </select>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="buttons">
+            <button onclick="synthesize(document.getElementById('sentenceHili').value)">Speak "Hili"</button>
+            <button onclick="synthesize(document.getElementById('sentenceHily').value)">Speak "Hily"</button>
+        </div>
+
+        <!-- Stop Button -->
+        <div class="controls" style="text-align: center; margin-top: 10px;">
+            <button onclick="stopSpeech()" style="width: 50%; background-color: #ff4d4d;">Stop Speaking</button>
+        </div>
+
+        <!-- Music Controls -->
+        <div class="music-controls">
+            <button id="musicButton" onclick="toggleMusic()">▶️</button>
+        </div>
+    </div>
+
+    <footer>
+        <p>Made with ❤️ for Roni and Michal</p>
+    </footer>
+</body>
+</html>
