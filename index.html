@@ -109,8 +109,10 @@
         /* Restore Defaults Button */
 .restore-button {
     background-color: #ff9900;
-    padding: 10px 15px;  /* Added to reduce button size */
-    font-size: 14px;      /* Added to reduce button size */
+    padding: 8px 12px;   /* Reduced padding for smaller size */
+    font-size: 13px;       /* Reduced font size for smaller size */
+    width: auto;          /* Allow button to shrink to fit content */
+    /* Optionally, you can add `max-width: 200px;` to limit its width if needed */
 }
 .restore-button:hover {
     background-color: #cc7a00;
@@ -127,7 +129,6 @@ footer {
     width: 100%;
     z-index: 1;
 }
-
         /* Music Controls */
         .music-controls {
             text-align: center;
